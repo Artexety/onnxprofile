@@ -112,7 +112,7 @@ class AttributeDict(dict):
         return self.__dict__[AttributeDict.IMMUTABLE]
 
 
-class Timer():
+class SimpleTimer():
     def __init__(self):
         self.start_time = time()
 

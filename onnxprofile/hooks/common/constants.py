@@ -33,3 +33,8 @@ MACS = Constants(
     SIN = 14,
     COS = 14,
 )
+
+METRICS = Constants(
+    FLOPS = 0,
+    MACS = 1,
+)

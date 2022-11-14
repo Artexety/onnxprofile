@@ -1,16 +1,9 @@
 import onnx
 
-import sys, os
-sys.path.insert(0, os.path.abspath('..'))
-
-from hooks.common.functions import (
-    transform_to_ndarray, 
-    get_attribute, 
-    construct_volume
-)
+from .hooks.common.functions import (transform_to_ndarray, get_attribute, construct_volume)
 
 
-def set_inputs(graph, dynamic_tensors, tensor_map):
+def set_inputs(graph: onnx.GraphProto, dynamic_tensors: dict, tensor_map: dict) -> onnx.GraphProto:
     for x in graph.input:
         if dynamic_tensors.keys().__contains__(x.name):
             tensor_map[x.name] = dynamic_tensors[x.name]
@@ -20,9 +13,9 @@ def set_inputs(graph, dynamic_tensors, tensor_map):
     return graph
 
 
-def add_outputs(graph, output_names, tensor_map):
+def add_outputs(graph: onnx.GraphProto, output_names: list, tensor_map: dict) -> onnx.GraphProto:
     for name in output_names:
-        if tensor_map is not None and name in tensor_map.keys():
+        if tensor_map is not None and name in tensor_map:
             new_output = onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, tensor_map[name].shape)
         else:
             new_output = onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, ())
@@ -30,7 +23,8 @@ def add_outputs(graph, output_names, tensor_map):
     return graph
 
 
-def update_statics(graph, tensor_map, params_map):
+def update_statics(graph: onnx.GraphProto, tensor_map: dict, params_map: dict) -> int:
+    total_params = 0
     for x in graph.initializer:
         ndarray = transform_to_ndarray(x)
         tensor_map[x.name] = ndarray
@@ -39,14 +33,13 @@ def update_statics(graph, tensor_map, params_map):
             for a in n.attribute:
                 if a.name == 'value':
                     tensor_map[n.output[0]] = get_attribute(a)
-    total_params = 0
-    for k in tensor_map.keys():
+    for k in tensor_map:
         params_map[k] = construct_volume(tensor_map[k].shape)
         total_params += params_map[k]
     return total_params
 
 
-def remove_unused_tensors(graph):
+def remove_unused_tensors(graph : onnx.GraphProto) -> None:
     consumer = {}
     producer = {initial.name: 0 for initial in graph.initializer}
     for node in graph.node:
