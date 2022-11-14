@@ -4,6 +4,16 @@ from .hooks.common.functions import (transform_to_ndarray, get_attribute, constr
 
 
 def set_inputs(graph: onnx.GraphProto, dynamic_tensors: dict, tensor_map: dict) -> onnx.GraphProto:
+    """ 
+    Sets values for dynamic graph inputs.
+    
+    Args:
+        graph (onnx.GraphProto): graph to set inputs for
+        dynamic_tensors (dict): dictionary of dynamic tensors
+        tensor_map (dict): dictionary of tensors
+    Returns:
+        Updated graph
+    """
     for x in graph.input:
         if dynamic_tensors.keys().__contains__(x.name):
             tensor_map[x.name] = dynamic_tensors[x.name]
@@ -14,6 +24,16 @@ def set_inputs(graph: onnx.GraphProto, dynamic_tensors: dict, tensor_map: dict) 
 
 
 def add_outputs(graph: onnx.GraphProto, output_names: list, tensor_map: dict) -> onnx.GraphProto:
+    """
+    Creates new outputs for the given graph.
+
+    Args:
+        graph (onnx.GraphProto): graph to add outputs to.
+        output_names (list): names of the outputs to add to the graph.
+        tensor_map (dict): dictionary of tensors
+    Returns:
+        Updated graph
+    """
     for name in output_names:
         if tensor_map is not None and name in tensor_map:
             new_output = onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, tensor_map[name].shape)
@@ -24,6 +44,16 @@ def add_outputs(graph: onnx.GraphProto, output_names: list, tensor_map: dict) ->
 
 
 def update_statics(graph: onnx.GraphProto, tensor_map: dict, params_map: dict) -> int:
+    """
+    Updates static inputs of the given graph.
+
+    Args:
+        graph (onnx.GraphProto): graph to update statics for
+        tensor_map (dict): dictionary of tensors
+        params_map (dict): dictionary of parameters
+    Returns:
+        Total amount of parameters present in the graph
+    """
     total_params = 0
     for x in graph.initializer:
         ndarray = transform_to_ndarray(x)
@@ -40,6 +70,12 @@ def update_statics(graph: onnx.GraphProto, tensor_map: dict, params_map: dict) -
 
 
 def remove_unused_tensors(graph : onnx.GraphProto) -> None:
+    """
+    Removes unused tensors from the graph.
+
+    Args:
+        graph (onnx.GraphProto): graph to remove unused tensors from
+    """
     consumer = {}
     producer = {initial.name: 0 for initial in graph.initializer}
     for node in graph.node:
