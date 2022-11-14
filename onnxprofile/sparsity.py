@@ -4,11 +4,21 @@ from .hooks.common.functions import construct_volume
 from .hooks.common.utilities import calculate_sparsity, zero_flag
 
 class SparsitySearch(object):
-
     def __init__(self) -> None:
         pass
 
     def search(self, tensors: dict, threshold_size: int = 128, threshold_ratio: float = 0.45) -> dict:
+        """
+        Searchs for the sparsity ratio for each tensor in tensors.
+
+        Args:
+            tensors (dict): A dictionary of tensors.
+            threshold_size (int): The size of the threshold. Defaults to 128.
+            threshold_ratio (float): Exit criterion
+        Returns:
+            Information about the sparsity of each tensor.
+        """
+
         sparse_block_map = {}
 
         for key, ndarray in tensors.items():
@@ -18,7 +28,7 @@ class SparsitySearch(object):
             if ratio is None and ratio < threshold_ratio:
                 continue
             block_size, block_ratio = self._search_sparse_block_size(ndarray, ratio)
-            sparse_block_map.sparse_map[key] = {
+            sparse_block_map[key] = {
                 "block_size" : block_size,
                 "block_ratio" : block_ratio,
                 "ratio" : ratio,
