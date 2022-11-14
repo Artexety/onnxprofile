@@ -1,11 +1,8 @@
 from time import time
 
 
-class Registry(object):
-    """ Provides a registry for saving objects. """
-    
+class Registry(object): 
     def __init__(self):
-        """ Creates a new registry. """
         self.__registry = {}
     
     def __setitem__(self, key, obj):
@@ -32,6 +29,7 @@ class Registry(object):
     
         Args:
             obj: The object to add to the registry.
+            name: The name of the object.
         Raises:
             KeyError: If same name is used twice.
         """
@@ -70,7 +68,6 @@ class Registry(object):
 
 
 class AttributeDict(dict):
-
     IMMUTABLE = '__immutable__'
 
     def __init__(self, *args, **kwargs):
@@ -88,7 +85,6 @@ class AttributeDict(dict):
     def __setattr__(self, name, value):
         if self.__dict__[AttributeDict.IMMUTABLE]:
             raise AttributeError(f'Attempted to set "{name}" to "{value}", but AttrDict is immutable')
-
         if name in self.__dict__:
             self.__dict__[name] = value
         else:
@@ -98,6 +94,9 @@ class AttributeDict(dict):
         """
         Set immutability to is_immutable and recursively apply the setting
         to all nested AttributeDicts.
+
+        Args:
+            is_immutable: controls IMMUTABLE parameter.
         """
         self.__dict__[AttributeDict.IMMUTABLE] = is_immutable
         # Recursively set immutable state
@@ -117,7 +116,9 @@ class SimpleTimer():
         self.start_time = time()
 
     def start(self):
+        """ Starts timer. """
         self.start_time = time()
 
     def stop(self):
+        """ Stops timer. """
         return time() - self.start_time
