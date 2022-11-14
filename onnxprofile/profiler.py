@@ -14,7 +14,6 @@ from .sparsity import SparsitySearch
 
 
 class Profiler(object):
-
     def __init__(self) -> None:
         self.registry_instance = Registry()
         self.crawler = SparsitySearch()
