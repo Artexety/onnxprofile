@@ -585,7 +585,7 @@ class Gemm(ElementwiseBase):
             macs *= weight_shape[-1]
 
         if self.dimensions["inputs"] == 3:
-            macs += construct_volume(inputs[0].shape) * MACS.ADD
+            macs += construct_volume(outputs[0].shape) * MACS.ADD
         return (macs, params)
 
     def inference_shape(self, inputs: list[np.ndarray]):

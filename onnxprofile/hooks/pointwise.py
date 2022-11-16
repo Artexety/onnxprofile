@@ -16,7 +16,7 @@ class PointwiseBase(ElementwiseBase):
         self.ratio = max(1, self.dimensions["inputs"] - 1)
 
     def profile(self, inputs: list[np.ndarray], outputs: list[np.ndarray]):
-        return (construct_volume(outputs[0].shape) * self.ratio * self.operation_mac_count, 0)
+        return (construct_volume(outputs[0].shape) * self.ratio * self.operation_mac_count, ZERO_OP)
 
     def inference_shape(self, inputs: list[np.ndarray]):
         return [construct_ndarray(calculate_max_shape_ndarray(inputs), dtype=np.float32)]
