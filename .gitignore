@@ -162,5 +162,5 @@ cython_debug/
 # ONNX model files
 *.onnx
 run.py
-benchmark/
+models/
 __examples/
