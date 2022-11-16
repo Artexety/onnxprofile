@@ -3,9 +3,9 @@ import argparse
 
 from json import dumps
 from typing import Union, List, Any
-from profiler import Profiler
-
+from .profiler import Profiler
 from os.path import splitext, join, abspath
+
 
 import logging
 import logging.config
