@@ -2,13 +2,11 @@ import numpy as np
 import argparse
 
 from json import dumps
-from pathlib import Path
-
 from typing import Union, List, Any
 from profiler import Profiler
-from hooks.common.constants import MACS
 
-print(MACS)
+from os.path import splitext
+
 
 class HelpFormatter(argparse.HelpFormatter):
     def __init__(self, prog: Any) -> None:
@@ -36,7 +34,7 @@ def _retrieve_parser() -> argparse.Namespace:
     parser.add_argument("-i", "--input", dest="_model_input_location", required=True, 
         help="specify the path to the ONNX model")
     parser.add_argument("-d", "--dynamic_inputs", nargs='+', dest="_tensor_inputs", 
-        help="specify the shape of the io tensors like as follows: \"input:type[f32, i32, i64]:1x3xHxW\"")
+        help="specify the shape of the io tensors like as follows: \"input:>f4:1x3xHxW\"")
     parser.add_argument("-c", "--console_output", action="store_true", default=False, 
         dest="_console_output", help="display a detailed report to the console")
     
@@ -44,14 +42,7 @@ def _retrieve_parser() -> argparse.Namespace:
 
 
 def _string_to_dtype(encoded_type: str) -> Union[np.float32, np.int32, np.int64]:
-    if encoded_type == "f32":
-        return np.float32
-    elif encoded_type == "i32":
-        return np.int32
-    elif encoded_type == "i64":
-        return np.int64
-    else:
-        raise TypeError(f"Unknown tensor type: {encoded_type}")
+    return np.dtype(encoded_type)
 
 
 def _string_to_list(encoded_list : str, dtype: np.dtype) -> list:
@@ -86,7 +77,8 @@ if __name__ == "__main__":
     macs, params = profiler_instance.profile(model=arguments._model_input_location,
         dynamic_inputs=dynamic_inputs, stdout=arguments._console_output)
     
-    output_name = f"{Path(arguments._model_input_location).stem}.txt"
-    with open(output_name, "w") as stream:
-        stream.write(dumps(obj={"macs": float(macs), "params": int(params)}))
+    output_file_path = f"{splitext(arguments._model_input_location)[0]}.json"
+    model_name = splitext(arguments._model_input_location)[0].split("\\")[-1]
+    with open(output_file_path, "w") as stream:
+        stream.write(dumps(obj={"model" : model_name, "result": {"macs": float(macs), "params": int(params)}}, indent=4))
     
