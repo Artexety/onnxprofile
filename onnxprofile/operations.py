@@ -1,7 +1,7 @@
-from .hooks.elementwise import *
-from .hooks.pointwise import *
-from .hooks.quantize import *
-from .hooks.fusion import *
+from hooks.elementwise import *
+from hooks.pointwise import *
+from hooks.quantize import *
+from hooks.fusion import *
 
 
 SUPPORTED_OPERATIONS = {
