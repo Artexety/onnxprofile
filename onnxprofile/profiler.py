@@ -2,6 +2,7 @@ import numpy as np
 import onnx
 
 from typing import Union
+from os.path import abspath, join
 
 from commons import (Registry, AttributeDict, SimpleTimer, profile_to_console)
 from hooks.common.functions import (construct_volume, get_tensor_shape, validate_ndarray)
@@ -10,6 +11,12 @@ from hooks.common.constants import METRICS
 from tensors import (remove_unused_tensors, set_inputs, update_statics)
 from operations import SUPPORTED_OPERATIONS
 from sparsity import SparsitySearch
+
+import logging
+import logging.config
+
+logging.config.fileConfig(join(abspath("."), 'logging.conf'))
+logger = logging.getLogger('profiler')
 
 
 class Profiler(object):
@@ -144,8 +151,8 @@ class Profiler(object):
                     flags[_input] += 1
         return (memory, params, inputs)
 
-    def _collect_node_outputs(self, node: onnx.NodeProto) -> tuple:
-        memory, outputs = (0, [])
+    def _collect_node_outputs(self, node: onnx.NodeProto, input_memory: int) -> tuple:
+        memory, outputs = (input_memory, [])
         for _output in node.output:
             if self.globals.tensor_map.keys().__contains__(_output):
                 outputs.append(self.globals.tensor_map[_output])
@@ -160,9 +167,9 @@ class Profiler(object):
         for _node in graph.node:
             if hidden_operations is not None and _node.op_type in hidden_operations:
                 continue
-
+            
             memory, params, inputs = self._collect_node_inputs(_node, flags)
-            memory, outputs = self._collect_node_outputs(_node)
+            memory, outputs = self._collect_node_outputs(_node, memory)
             macs, _ = self._profile_single_node(_node, inputs, outputs)
             output_shape, input_shape = ((0,), (0,))
             
@@ -199,7 +206,7 @@ class Profiler(object):
         self._retrieve_single_shapes(graph, dynamic_inputs)
 
         if verbose:
-            print(f"infered all tensor shapes in {internal_timer.stop():3f} sec's")
+            logger.info(f"retrivial of all tensor shapes took {internal_timer.stop():3f} sec's")
 
         sparse_model = len(self.globals.sparse_map.keys()) > 0
         params_flags = {key: False for key in self.globals.params_map.keys()}
@@ -208,7 +215,7 @@ class Profiler(object):
         self._profile_nodes(graph, sparse_model, hidden_operations, params_flags)
 
         if verbose:
-            print(f"profiled all nodes in {internal_timer.stop():.3f} sec's")  
+            logger.info(f"profiling of all nodes took {internal_timer.stop():.3f} sec's")
 
         for node in graph.node:
             for _input in node.input:
@@ -222,11 +229,12 @@ class Profiler(object):
                         self.globals.shared_nodes[_input] = [node.name]
 
         if verbose:
-            count = sum(construct_volume(self.globals.tensor_map[t].shape) for t in self.globals.tensor_map)
-            count *= 4
+            count = sum(construct_volume(self.globals.tensor_map[t].shape) for t in self.globals.tensor_map) * 4
             difference = abs(self.measurements.memory - count) / count
-            print(f"globals->tensor_map: {count} globals->self.globals.node_map: {self.measurements.memory}, delta: {difference:.3%}")
-            assert (difference < 0.01)
+            logger.info(f"globals -> tensor_map: {count}")
+            logger.info(f"globals -> nodememory: {self.measurements.memory}")
+            logger.info(f"globals -> difference: {difference:.3%}")
+            assert (difference < 0.01), f"diference to large! delta: {difference}"
 
     def _retrieve_single_shapes(self, graph: onnx.GraphProto, dynamic_inputs: dict) -> None:
         self.globals.tensor_map = {}
