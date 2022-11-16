@@ -1,6 +1,6 @@
 import onnx
 
-from hooks.common.functions import (transform_to_ndarray, get_attribute, construct_volume)
+from .hooks.common.functions import (transform_to_ndarray, get_attribute, construct_volume)
 
 
 def set_inputs(graph: onnx.GraphProto, dynamic_tensors: dict, tensor_map: dict) -> onnx.GraphProto:

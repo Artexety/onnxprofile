@@ -1,6 +1,7 @@
 from time import time
-from hooks.common.constants import METRICS
 from tabulate import tabulate
+
+from .hooks.common.constants import METRICS
 
 
 class Registry(object): 

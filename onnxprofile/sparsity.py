@@ -1,7 +1,7 @@
 import numpy as np
 
-from hooks.common.functions import construct_volume
-from hooks.common.utilities import calculate_sparsity, zero_flag
+from .hooks.common.functions import construct_volume
+from .hooks.common.utilities import calculate_sparsity, zero_flag
 
 class SparsitySearch(object):
     def __init__(self) -> None:

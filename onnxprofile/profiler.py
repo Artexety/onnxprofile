@@ -4,13 +4,13 @@ import onnx
 from typing import Union
 from os.path import abspath, join
 
-from commons import (Registry, AttributeDict, SimpleTimer, profile_to_console)
-from hooks.common.functions import (construct_volume, get_tensor_shape, validate_ndarray)
-from hooks.common.constants import METRICS
+from .commons import (Registry, AttributeDict, SimpleTimer, profile_to_console)
+from .hooks.common.functions import (construct_volume, get_tensor_shape, validate_ndarray)
+from .hooks.common.constants import METRICS
 
-from tensors import (remove_unused_tensors, set_inputs, update_statics)
-from operations import SUPPORTED_OPERATIONS
-from sparsity import SparsitySearch
+from .tensors import (remove_unused_tensors, set_inputs, update_statics)
+from .operations import SUPPORTED_OPERATIONS
+from .sparsity import SparsitySearch
 
 import logging
 import logging.config

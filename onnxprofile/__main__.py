@@ -73,7 +73,7 @@ def _string_to_ndarray(arguments: List[str]) -> np.ndarray:
     return response
 
 
-if __name__ == "__main__":
+def main():
     arguments = _retrieve_parser()
     profiler_instance = Profiler()
     
@@ -99,3 +99,7 @@ if __name__ == "__main__":
     
     if arguments._verbose: 
         logger.info(f"output -> \"{output_file_path}\"")
+
+
+if __name__ == "__main__":
+    main()
