@@ -51,7 +51,6 @@ def calculate_pooling_shape(input_shape, padding, kernel_shape, dilation, stride
 def calculate_sparsity(ndarray):
     if len(ndarray.shape) not in [2, 4]:
         return None
-
     if ndarray.dtype in [np.float32, np.float64, np.int32, np.int8]:
         flag = ndarray == 0
         return flag.sum() / ndarray.size
