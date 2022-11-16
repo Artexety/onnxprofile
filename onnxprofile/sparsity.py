@@ -1,13 +1,13 @@
 import numpy as np
 
-from .hooks.common.functions import construct_volume
-from .hooks.common.utilities import calculate_sparsity, zero_flag
+from hooks.common.functions import construct_volume
+from hooks.common.utilities import calculate_sparsity, zero_flag
 
 class SparsitySearch(object):
     def __init__(self) -> None:
         pass
 
-    def search(self, tensors: dict, threshold_size: int = 128, threshold_ratio: float = 0.45) -> dict:
+    def search(self, tensors: dict, threshold_size: int = 128, threshold_ratio: float = 0.40) -> dict:
         """
         Searchs for the sparsity ratio for each tensor in tensors.
 
@@ -25,7 +25,7 @@ class SparsitySearch(object):
             if (construct_volume(ndarray.shape) < threshold_size):
                 continue
             ratio = calculate_sparsity(ndarray)
-            if ratio is None and ratio < threshold_ratio:
+            if ratio is None or ratio < threshold_ratio:
                 continue
             block_size, block_ratio = self._search_sparse_block_size(ndarray, ratio)
             sparse_block_map[key] = {
@@ -70,7 +70,7 @@ class SparsitySearch(object):
         else:
             return (False, ratio)
 
-    def _search_sparse_block_size_1d(self, ndarray: np.ndarray, ratio: float, threshold: float = 0.1) -> tuple:
+    def _search_sparse_block_size_1d(self, ndarray: np.ndarray, ratio: float, threshold: float = 0.099) -> tuple:
         init_size, valid_size = 2, 1
         p, q = True, True
         valid_ratio = ratio
