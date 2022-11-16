@@ -26,9 +26,9 @@ class HelpFormatter(argparse.HelpFormatter):
 
 def _retrieve_parser() -> argparse.Namespace:
     formatter = lambda prog: HelpFormatter(prog)
-    parser = argparse.ArgumentParser(description="Count the MACs / FLOPs of your ONNX model.",
+    parser = argparse.ArgumentParser(description="A general and accurate MACs / FLOPs profiler for ONNX models.",
         prog="onnxprofile",
-        usage="%(prog)s [-h] [-v,--version] -i <model> [-d <dynamic>]",
+        usage="%(prog)s [-h] [-v,--version] -i <model> [-d <dynamic>] [-c]",
         formatter_class=formatter,
         )
     parser.add_argument("-i", "--input", dest="_model_input_location", required=True, 
