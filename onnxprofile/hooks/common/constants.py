@@ -35,6 +35,6 @@ MACS = Constants(
 )
 
 METRICS = Constants(
-    FLOPS = 0,
-    MACS = 1,
+    FLOPs = 0,
+    MACs = 1,
 )
