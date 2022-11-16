@@ -5,7 +5,13 @@ from json import dumps
 from typing import Union, List, Any
 from profiler import Profiler
 
-from os.path import splitext
+from os.path import splitext, join, abspath
+
+import logging
+import logging.config
+
+logging.config.fileConfig(join(abspath("."), 'logging.conf'))
+logger = logging.getLogger("root")
 
 
 class HelpFormatter(argparse.HelpFormatter):
@@ -28,7 +34,7 @@ def _retrieve_parser() -> argparse.Namespace:
     formatter = lambda prog: HelpFormatter(prog)
     parser = argparse.ArgumentParser(description="A general and accurate MACs / FLOPs profiler for ONNX models.",
         prog="onnxprofile",
-        usage="%(prog)s [-h] [-v,--version] -i <model> [-d <dynamic>] [-c]",
+        usage="%(prog)s [-h] [-v,--version] -i <model> [-d <dynamic>] [-c] [-v]",
         formatter_class=formatter,
         )
     parser.add_argument("-i", "--input", dest="_model_input_location", required=True, 
@@ -36,7 +42,9 @@ def _retrieve_parser() -> argparse.Namespace:
     parser.add_argument("-d", "--dynamic_inputs", nargs='+', dest="_tensor_inputs", 
         help="specify the shape of the io tensors like as follows: \"input:>f4:1x3xHxW\"")
     parser.add_argument("-c", "--console_output", action="store_true", default=False, 
-        dest="_console_output", help="display a detailed report to the console")
+        dest="_console_output", help="displays a detailed report to the console")
+    parser.add_argument("-v", "--verbose", action="store_true", default=False, 
+        dest="_verbose", help="displays some additional debug information")
     
     return parser.parse_args()
 
@@ -68,17 +76,26 @@ def _string_to_ndarray(arguments: List[str]) -> np.ndarray:
 if __name__ == "__main__":
     arguments = _retrieve_parser()
     profiler_instance = Profiler()
+    
+    output_file_path = f"{splitext(arguments._model_input_location)[0]}.json"
+    model_name = splitext(arguments._model_input_location)[0].split("\\")[-1]
 
     if arguments._tensor_inputs is not None:
         dynamic_inputs = _string_to_ndarray(arguments._tensor_inputs)
     else:
         dynamic_inputs = None
     
-    macs, params = profiler_instance.profile(model=arguments._model_input_location,
-        dynamic_inputs=dynamic_inputs, stdout=arguments._console_output)
+    if arguments._verbose: 
+        logger.info(f"input -> \"{model_name}\"")
     
-    output_file_path = f"{splitext(arguments._model_input_location)[0]}.json"
-    model_name = splitext(arguments._model_input_location)[0].split("\\")[-1]
+    macs, params = profiler_instance.profile(
+        model=arguments._model_input_location,
+        dynamic_inputs=dynamic_inputs, 
+        stdout=arguments._console_output, 
+        verbose=arguments._verbose
+    )
     with open(output_file_path, "w") as stream:
         stream.write(dumps(obj={"model" : model_name, "result": {"macs": float(macs), "params": int(params)}}, indent=4))
     
+    if arguments._verbose: 
+        logger.info(f"output -> \"{output_file_path}\"")
