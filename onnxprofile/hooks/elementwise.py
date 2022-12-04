@@ -235,7 +235,7 @@ class Resize(ElementwiseBase):
         if validate_ndarray(output_shape) and output_shape.dtype != np.int64:
             output_shape = output_shape.astype(dtype=np.int64)
 
-        return [construct_ndarray(output_shape, dtype=np.flaot32)]
+        return [construct_ndarray(output_shape, dtype=np.float32)]
 
 
 class ScatterND(ElementwiseBase):
