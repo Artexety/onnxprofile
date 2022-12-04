@@ -15,8 +15,8 @@ from .sparsity import SparsitySearch
 import logging
 import logging.config
 
-logging.config.fileConfig(join(abspath("."), 'logging.conf'))
-logger = logging.getLogger('profiler')
+# logging.config.fileConfig(join(abspath("."), 'logging.conf')) FIXME
+logger = logging.getLogger() # FIXME
 
 
 class Profiler(object):
