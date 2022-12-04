@@ -10,8 +10,8 @@ from os.path import splitext, join, abspath
 import logging
 import logging.config
 
-logging.config.fileConfig(join(abspath("."), 'logging.conf'))
-logger = logging.getLogger("root")
+# logging.config.fileConfig(join(abspath("."), 'logging.conf')) FIXME
+logger = logging.getLogger() # FIXME
 
 
 class HelpFormatter(argparse.HelpFormatter):
